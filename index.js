@@ -1,46 +1,52 @@
+MTQ3Njk3NDQ2MTU0MTU0ODA0Mw.GV4PB4.FVokGz0_3ZDVCcT4wdf4h0asej-Ubb9aAlFTFA
 const { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
 
 const client = new Client({ 
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] 
+    intents: [
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMessages, 
+        GatewayIntentBits.MessageContent
+    ] 
 });
 
-// Comando para poner el panel de tickets en un canal
+// Panel de la Tienda de Posters
 client.on('messageCreate', async (message) => {
-  if (message.content === '!setup-tickets') {
+  if (message.content === '!setup-tienda') {
     const embed = new EmbedBuilder()
-      .setTitle('📩 Centro de Soporte GRalguien')
-      .setDescription('Haz clic en el botón de abajo para abrir un ticket de ayuda privada.')
-      .setColor('#0099ff'); // El azul de tu avatar
+      .setTitle('🖼️ Tienda de Posters GRalguien')
+      .setDescription('¡Consigue tus posters favoritos con marco por solo 25€!\n\nHaz clic en el botón de abajo para abrir un pedido privado.')
+      .setColor('#00FF00');
 
     const row = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
-          .setCustomId('abrir_ticket')
-          .setLabel('Abrir Ticket')
-          .setStyle(ButtonStyle.Primary),
+          .setCustomId('comprar_poster')
+          .setLabel('🛒 Comprar Poster')
+          .setStyle(ButtonStyle.Success),
       );
 
     await message.channel.send({ embeds: [embed], components: [row] });
   }
 });
 
-// Lógica para cuando alguien pulsa el botón
+// Sistema de Pedidos Privados
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isButton()) return;
 
-  if (interaction.customId === 'abrir_ticket') {
+  if (interaction.customId === 'comprar_poster') {
     const channel = await interaction.guild.channels.create({
-      name: `ticket-${interaction.user.username}`,
+      name: `pedido-${interaction.user.username}`,
       type: ChannelType.GuildText,
       permissionOverwrites: [
-        { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] }, // Oculto para todos
-        { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }, // Visible para el usuario
+        { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+        { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
       ],
     });
 
-    await interaction.reply({ content: `✅ Ticket creado en ${channel}`, ephemeral: true });
-    await channel.send(`¡Hola ${interaction.user}! Bienvenido al soporte de **GRalguien**. Cuéntanos tu problema.`);
+    await interaction.reply({ content: `✅ Pedido abierto en ${channel}`, ephemeral: true });
+    await channel.send(`¡Hola ${interaction.user}! Cuéntanos qué poster quieres y te atenderemos enseguida.`);
   }
 });
 
-client.login('MTQ3Njk3NDQ2MTU0MTU0ODA0Mw.GV4PB4.FVokGz0_3ZDVCcT4wdf4h0asej-Ubb9aAlFTFA'); 
+// ESTA LÍNEA ES LA CLAVE PARA QUE NO HAYA CORREOS DE ALERTA:
+client.login(process.env.DISCORD_TOKEN);
